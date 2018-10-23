@@ -39,7 +39,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty(trim($_POST["password"]))){
         $password_err = "Wachtwoord invoeren alstublieft.";
     } elseif(strlen(trim($_POST["password"])) < 6){
-        $password_err = "Wachtwoord moet tenminste 8 karakters hebben.";
+        $password_err = "Wachtwoord moet tenminste 6 karakters hebben.";
     } else{
         $password = trim($_POST["password"]);
     }
