@@ -146,3 +146,9 @@ body {
         width: 100%;
     }
 }
+
+.cat-style {
+    font-size: 18px;
+    color: #000;
+
+}
