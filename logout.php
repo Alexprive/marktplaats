@@ -1,11 +1,9 @@
 <?php
 
-session_start();
+require_once 'core/init.php';
 
-$_SESSION = array();
+$user = new User();
+$user->logout();
 
-session_destroy();
-
-header("location: index.php");
-exit;
+Redirect::to('index.php');
 ?>

@@ -1,135 +1,102 @@
 <?php
 
-include'include/Dbc.php';
-include'include/getCategorie.php';
-include'include/showCategorie.php';
-include'include/getAdd.php';
-include'include/showAdd.php';
+// Core Initialization
+require_once 'core/init.php';
 
-// Report simple running errors
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
+// Header
+include 'includes/header.php';
 
-// Reporting E_NOTICE can be good too (to report uninitialized
-// variables or catch variable name misspellings ...)
-error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
-// Report all errors except E_NOTICE
-error_reporting(E_ALL & ~E_NOTICE);
 
-// Report all PHP errors (see changelog)
-error_reporting(E_ALL);
+/*Teste de Configuração video "06. Config Class"
+echo Config::get('mysql/host'); // 'localhost'
+var_dump(Config::get('mysql/host/index'));
 
-// Report all PHP errors
-error_reporting(-1);
 
-// Same as error_reporting(E_ALL);
-ini_set('error_reporting', E_ALL);
+DB::getInstance();
 
-session_start();
-
-if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
-
-    require_once "config.php";
-
-    /*$category_id = "";*/
-
+$user = DB::getInstance()->query("SELECT username FROM users\ WHERE username =?", array('alex'));
+if ($user->error()) {
+  echo "No user";
+} else {
+  echo "Ok!";
 }
-?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Marktplaats</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script>
-        function showAdds(str) {
-            if (str == "") {
-                document.getElementById("addTable").innerHTML = "";
-                return;
-            } else {
-                if (window.XMLHttpRequest) {
-                    xmlhttp = new XMLHttpRequest();
-                } else {
-                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-                }
-                xmlhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
-                        document.getElementById("addTable").innerHTML = this.responseText;
-                    }
-                };
-                xmlhttp.open("GET","showadds.php?q="+str,true);
-                xmlhttp.send();
-            }
-        }
-    </script>
-</head>
-<body>
+$user = DB::getInstance()->get('users', array('username', '=', 'alex'));
 
-<div class="header">
-    <div class="headerlogo">
-        <img src="img/coin-300.png" width="30" height="30" alt="">
-        <h1>Marktplaats</h1>
-    </div>
-    <a href="placeadd.php"><button class="btn btn-primary" style="float: right; margin-top: -43px; margin-right: 30px;">Plaats advertentie</button></a>
-</div>
+if (!$user->count()) {
+  echo "No user";
+} else {
+  echo "Ok!";
+}
 
-<nav class="navbar">
-    <ul class="navbar-nav">
-        <li><a href="register.php">Registreren</a></li>
-        <li><a href="login.php">Inloggen</a></li>
-        <li><a href="reset-password.php">ww veranderen</a></li>
-        <li><a href="logout.php">Uitloggen</a></li>
+$user = DB::getInstance()->query("SELECT * FROM users");
+
+$user = DB::getInstance()->get('users', array('username', '=', 'alex'));
+
+
+if (!$user->count()) {
+  echo "No user";
+} else {
+  foreach ($user->results() as $user) {
+    echo $user->username, '<br>';
+  }
+  echo $user->results()[0]->username;
+  echo $user->first()->username;
+}
+
+$user = DB::getInstance()->insert('users', array(
+  'username'  => 'Dale',
+  'password'  => 'password',
+  'salt'      => 'salt'
+));
+
+$userUpdate = DB::getInstance()->update('users', 13, array(
+  'username' => 'TesteUpdate',
+  'password'  => 'newpassword',
+  'name' => 'Emanuel Limeira'
+));
+
+if (Session::exists('success')) {
+  echo Session::flash('success');
+}
+*/
+
+
+echo "<div class='maincontainer'>";
+
+if (Session::exists('home')) {
+    echo '<p>' . Session::flash('home') .  '</p>';
+}
+
+//print Session::get(Config::get('session/session_name'));
+
+$user = new User();
+//echo $user->data()->username;
+if ($user->isLoggedIn()) {
+
+    echo "<p class='label label-success'>Success! You are logged in!</p><br><br>";
+    ?>
+    <p>
+        Hello <a href="profile.php?user=<?php echo escape($user->data()->username); ?>"><?php echo escape($user->data()->name); ?></a>
+    </p>
+
+    <ul>
+        <li><a href="update.php">Update</a></li>
+        <li><a href="changepassword.php">Change Password</a></li>
+        <li><a href="logout.php">Logout</a></li>
+
     </ul>
-
-    <span class="open-slide">
-      <a href="#" onclick="openSlideMenu()">
-        <svg width="30" height="30">
-            <path d="M0,5 30,5" stroke="#666" stroke-width="5"/>
-            <path d="M0,14 30,14" stroke="#666" stroke-width="5"/>
-            <path d="M0,23 30,23" stroke="#666" stroke-width="5"/>
-        </svg>
-      </a>
-    </span>
-</nav>
-
-<div id="side-menu" class="side-nav">
-    <a href="#" class="btn-close" onclick="closeSlideMenu()">&times;</a>
-    <a href="register.php">Registreren</a>
-    <a href="login.php">Inloggen</a>
-    <a href="reset-password.php">Wachtwoord veranderen</a>
-    <a href="logout.php">Uitloggen</a>
-</div>
-
-    <div id="main">
-        <div class="col-md-3">
-            <h3 style="color:white; background-color: black; padding: 5px; text-align: center;">Categoriën</h3>
-            <?php
-                $categorie = new showCategorie();
-                $categorie->showAllCategories();
-            ?>
-        </div>
-        <div class="col-md-9">
-            <h3 style="color:white; background-color: black; padding: 5px; text-align: center;">Advertenties</h3>
-            <?php
-              $add = new showAdd();
-              $add->showAlladds();
-            ?>
-
-        </div>
-    </div>
-</section>
-
-<script>
-    function openSlideMenu(){
-        document.getElementById('side-menu').style.width = '250px';
-        document.getElementById('main').style.marginLeft = '250px';
+    <?php
+    // User Permission
+    if ($user->hasPermission('admin')) {
+        echo "<p>You are an Administrator!</p>";
     }
 
-    function closeSlideMenu(){
-        document.getElementById('side-menu').style.width = '0';
-        document.getElementById('main').style.marginLeft = '0';
-    }
-</script>
-</body>
-</html>
+} else {
+    echo "<p>You need to <a href='login.php'>log in</a> or <a href='register.php'>register</a></p>";
+}
+
+echo "</div> <!-- //maincontainer -->";
+
+include 'includes/footer.php';
